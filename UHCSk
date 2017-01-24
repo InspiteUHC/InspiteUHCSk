@@ -1,0 +1,1482 @@
+options:
+	S: &c&lInspite
+	A: &8&l»&f
+	AA: &8&l«&f
+	SpecVariable: spec
+	Satfix: true
+	Difficulty: HARD
+	
+	
+	variable: inspiteuhc
+	FeatureList: &8&l»------&c&lFeature List&8&l------&8&l«
+	FeatureConfig: &8&l»-----&c&lFeature Config&8&l-----&8&l«
+	HeartSymbol: &4♥
+	SugarHealHorse: 5
+	WheatHealHorse: 10
+	AppleHealHorse: 15
+	GoldenCarrotHealHorse: 20
+	GoldenAppleHealHorse: 50
+	HayBaleHealHorse: 100
+	CurrentVersion: INSPITEUHCSKV1.0
+	CurrentState: BETA
+	
+function armorStand(loc: location) :: entity:
+	spawn an armor stand at {_loc}
+	set {_arm} to the last spawned entity
+	return {_arm}
+	
+function formatBack(p: player):
+	format slot 8 of {_p} with a clock named "{@A} &c&lBack {@AA}" to close then run "inspiteuhcgui openconfig %{_p}%"
+	
+function updateTab(p: player):
+	"%{{@variable}::Temps::%{_p}%}%" is not "%floor({_p}'s health*2)%"
+	set {{@variable}::Temps::%{_p}%} to floor({_p}'s health*2)
+	command "/scoreboard players set %{_p}% Health %floor({_p}'s health*2)%"
+	command "/scoreboard players set %{_p}% HealthTab %floor({_p}'s health*2)%"
+	
+on skript unload:
+	delete {{@variable}::Temps::*}
+	
+every tick:
+	loop all players:
+		updateTab(loop-player)
+
+on skript load:
+	command "/difficulty {@Difficulty}"
+	register new shapeless recipe for glistering melon named "&fGlistering Melon" using air, air, air, melon slice, gold block, air, air, air, air
+	register new shaped recipe for golden apple item named "&6Golden Head" using gold ingot, gold ingot, gold ingot, gold ingot, player head, gold ingot, gold ingot, gold ingot, gold ingot
+	command "/scoreboard objectives add Health dummy {@HeartSymbol}"
+	command "/scoreboard objectives add HealthTab dummy HealthTab"
+	command "/scoreboard objectives setdisplay list HealthTab"
+	command "/scoreboard objectives setdisplay belowName Health"
+
+	
+command /uhc:
+	trigger:
+		if command sender has permission "inspite.host":
+			open chest with 6 rows named "{@FeatureConfig}" to command sender
+			wait 3 ticks
+			if {{@variable}::EPD} is not set:
+				format slot 0 of command sender with a ender pearl named "{@A} Enderpearl Damage {@AA}" with lore "{@A} 0 {@HeartSymbol} {@AA}" to close then run "inspiteuhcgui epearlgui %command sender%"
+			else:
+				format slot 0 of command sender with a ender pearl named "{@A} Enderpearl Damage {@AA}" with lore "{@A} %{{@variable}::EPD}/10% {@HeartSymbol} {@AA}" to close then run "inspiteuhcgui epearlgui %command sender%"
+			
+			if {{@variable}::DL} is not set:
+				format slot 2 of command sender with a 169 named "{@A} Death Lightning {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui deathl %command sender%"
+			else:
+				format slot 2 of command sender with a 169 named "{@A} Death Lightning {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui deathl %command sender%"
+				
+			if {{@variable}::GD} is not set:
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Normal {@AA}" to close then run "inspiteuhcgui ghastgui %command sender%"
+			else if {{@variable}::GD} is "gi":
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Ingot {@AA}" to close then run "inspiteuhcgui ghastgui %command sender%"
+			else if {{@variable}::GD} is "gn":
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Nugget {@AA}" to close then run "inspiteuhcgui ghastgui %command sender%" 
+			else if {{@variable}::GD} is "gb":
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Block {@AA}" to close then run "inspiteuhcgui ghastgui %command sender%"
+			
+			if {{@variable}::AS} is not set:
+				format slot 6 of command sender with a 416 named "{@A} Death Stands {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui asgui %command sender%"
+			else:
+				format slot 6 of command sender with a 416 named "{@A} Death Stands {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui asgui %command sender%"
+				
+			if {{@variable}::GHeads} is not set:
+				format slot 8 of command sender with a player head named "{@A} Player Heads {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui headsgui %command sender%"
+			else:
+				if {{@variable}::GheadHeal} is not set:
+					format slot 8 of command sender with 8 player heads named "{@A} Player Heads {@AA}" with lore "{@A} Enabled {@AA} || {@A} Heals: 4 {@HeartSymbol} {@AA}" to close then run "inspiteuhcgui headsgui %command sender%"
+				else:
+					format slot 8 of command sender with (({{@variable}::GHeadHeal}) of player head) named "{@A} Player Heads {@AA}" with lore "{@A} Enabled {@AA} || {@A} Heals: %{{@variable}::GHeadHeal}/2% {@HeartSymbol} {@AA}" to close then run "inspiteuhcgui headsgui %command sender%"
+			
+			if {{@variable}::Horses} is not set:
+				format slot 10 of command sender with a saddle named "{@A} Horses {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui horseridegui %command sender%"
+			else:
+				format slot 10 of command sender with a saddle named "{@A} Horses {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui horseridegui %command sender%"
+			
+			if {{@variable}::HorseHeal} is not set:
+				format slot 12 of command sender with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} Not Nerfed {@AA}" to close then run "inspiteuhcgui horsehealgui %command sender%"
+			else if {{@variable}::HorseHeal} is less than or equal to 0:
+				format slot 12 of command sender with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui horsehealgui %command sender%"
+			else:
+				set {_Sugar} to "{@A} Sugar: %{@SugarHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Whe} to "{@A} Wheat: %{@WheatHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_App} to "{@A} Apple: %{@AppleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Gapp} to "{@A} Golden Apple: %{@GoldenAppleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Gcar} to "{@A} Golden Carrot: %{@GoldenCarrotHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_HB} to "{@A} Hay Bale: %{@HayBaleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				format slot 12 of command sender with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} %{{@variable}::HorseHeal}%%% as effective || %{_Sugar}% || %{_Whe}% || %{_App}% || %{_Gcar}% || %{_Gapp}% || %{_HB}%" to close then run "inspiteuhcgui horsehealgui %command sender%"
+				
+			if {{@variable}::HorseArmor} is not set:
+				format slot 14 of command sender with a diamond horse armor named "{@A} Horse Armor {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui horsearmorgui %command sender%"
+			else:
+				format slot 14 of command sender with a diamond horse armor named "{@A} Horse Armor {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui horsearmorgui %command sender%"
+				
+			if {{@variable}::NoGlow} is not set:
+				format slot 16 of command sender with a glowstone dust named "{@A} Glowstone {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui glowgui %command sender%"
+			else:
+				format slot 16 of command sender with a glowstone dust named "{@A} Glowstone {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui glowgui %command sender%"
+			
+			if {{@variable}::GlistMelon} is not set:
+				format slot 18 of command sender with a glistering melon named "{@A} Hard Melon Recipe {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui melongui %command sender%"
+			else:
+				format slot 18 of command sender with a glistering melon named "{@A} Hard Melon Recipe {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui melongui %command sender%"
+				
+			if {{@variable}::AntiTrap} is not set:
+				format slot 20 of command sender with a lava bucket named "{@A} Anti Portal Trapping {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui trapgui %command sender%"
+			else:
+				format slot 20 of command sender with a lava bucket named "{@A} Anti Portal Trapping {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui trapgui %command sender%"
+				
+			if {{@variable}::BrewingStands} is not set:
+				format slot 28 of command sender with a brewing stand item named "{@A} Brewing Stands {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui brewgui %command sender%"
+			else:
+				format slot 28 of command sender with a brewing stand item named "{@A} Brewing Stands {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui brewgui %command sender%"
+				
+			if {{@variable}::StrPots} is not set:
+				format slot 24 of command sender with a blaze powder named "{@A} Strength Potions {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui strgui %command sender%"
+			else:
+				format slot 24 of command sender with a blaze powder named "{@A} Strength Potions {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui strgui %command sender%"
+
+			format slot 22 of command sender with a enchanted book named " {@A} Server Info {@AA}" with lore "{@A} &c&lInspiteUHC {@AA} ||{@A} &4&lCreated: &fNovember 23rd 2016 {@AA} ||{@A} &4&lStaff: &f_Mrcs, &fTwitterPolls {@AA}||{@A} &4&lInspiteUHC &eIs A RedditUHC Server Owned By &4_Mrcs&e {@AA}||{@A} &eServer Version: &f%minecraft version% {@AA}||{@A} &eServers State: &f{@CurrentState} &f {@AA}||{@A} &eCurrently Running: &fVersion &c{@CurrentVersion}-{@CurrentState} {@AA}" to be unstealable
+
+			if {{@variable}::GodApp} is not set:
+				format slot 26 of command sender with a enchanted golden apple named "{@A} God Apples {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui godgui %command sender%"
+			else:
+				format slot 26 of command sender with a enchanted golden apple named "{@A} God Apples {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui godgui %command sender%"
+			
+			if {{@variable}::Bookshelves} is not set:
+				format slot 30 of command sender with a bookshelf named "{@A} Bookshelves {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui bookgui %command sender%"
+			else:
+				format slot 30 of command sender with a bookshelf named "{@A} Bookshelves {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui bookgui %command sender%"
+				
+			if {{@variable}::Absorp} is not set:
+				format slot 32 of command sender with a golden apple item named "{@A} Absorption {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui absorpgui %command sender%"
+			else:
+				format slot 32 of command sender with a golden apple item named "{@A} Absorption {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui absorpgui %command sender%"
+				
+			if {{@variable}::FlintRates} is not set:
+				format slot 34 of command sender with a flint named "{@A} Flint Rates {@AA}" with lore "{@A} Vanilla (10%%) {@AA}" to close then run "inspiteuhcgui flintgui %command sender%"
+			else:
+				format slot 34 of command sender with a flint named "{@A} Flint Rates {@AA}" with lore "{@A} %{{@variable}::FlintRates}%%% {@AA}" to close then run "inspiteuhcgui flintgui %command sender%"
+				
+			if {{@variable}::AppleRates} is not set:
+				format slot 36 of command sender with a apple named "{@A} Apple Rates {@AA}" with lore "{@A} Vanilla (0.55%%) {@AA} ||{@A} No Shears! {@AA}" to close then run "inspiteuhcgui applegui %command sender%"
+			else:
+				if {{@variable}::OakOnly} is set:
+					set {_oa} to "{@A} Oak and Dark Oak Trees Only Drop Apples {@AA}"
+				else:
+					set {_oa} to "{@A} All Trees Drop Apples {@AA}"
+				if {{@variable}::NoShears} is set:
+					set {_NS} to "{@A} Shears Do Not Work For Apples But Work For Leaves {@AA}"
+				else:
+					set {_NS} to "{@A} Shears Work For Apples and Leaves {@AA}"
+				format slot 36 of command sender with a apple named "{@A} Apple Rates {@AA}" with lore "{@A} %{{@variable}::AppleRates}%%% {@AA} ||%{_oa}%||%{_NS}%" to close then run "inspiteuhcgui applegui %command sender%"
+			
+			if {{@variable}::AntiiPvP} is not set:
+				format slot 38 of command sender with a flint and steel named "{@A} Anti iPvP {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui iPvPgui %command sender%"
+			else:
+				format slot 38 of command sender with a flint and steel named "{@A} Anti iPvP {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui iPvPgui %command sender%"
+			
+			if {{@variable}::NP} is not set:
+				format slot 40 of command sender with a nether wart item named "{@A} Nether {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui nethergui %command sender%"
+			else:
+				format slot 40 of command sender with a nether wart item named "{@A} Nether {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui nethergui %command sender%"
+				
+			if {{@variable}::QuartzXP} is not set:
+				format slot 42 of command sender with a nether quartz item named "{@A} Quartz XP Nerf {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui xpgui %command sender%"
+			else:
+				format slot 42 of command sender with a nether quartz item named "{@A} Quartz XP Nerf {@AA}" with lore "{@A} Enabled (1/2 Of Vanilla XP) {@AA}" to close then run "inspiteuhcgui xpgui %command sender%"
+				
+			if {{@variable}::SplashPots} is not set:
+				format slot 44 of command sender with (a potion of:16395 with no nbt) named "{@A} Splash Potions {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui splashgui %command sender%"
+			else:
+				format slot 44 of command sender with (a potion of:16395 with no nbt) named "{@A} Splash Potions {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui splashgui %command sender%"
+				
+			if {{@variable}::Anvils} is not set:
+				format slot 46 of command sender with a anvil named "{@A} Anvils {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui anvilgui %command sender%"
+			else:
+				format slot 46 of command sender with a anvil named "{@A} Anvils {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui anvilgui %command sender%"
+			
+			if {{@variable}::FireWeapons} is not set:
+				format slot 48 of command sender with a fire charge item named "{@A} Fire Weapons {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui fireweaponsgui %command sender%"
+			else:
+				format slot 48 of command sender with a fire charge item named "{@A} Fire Weapons {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui fireweaponsgui %command sender%"
+			
+			if {{@variable}::2xArrows} is not set:
+				format slot 50 of command sender with 2 arrows named "{@A} Double Arrow Output {@AA}" with lore "{@A} Disabled {@AA}" to close then run "inspiteuhcgui 2arrowgui %command sender%"
+			else:
+				format slot 50 of command sender with 2 arrows named "{@A} Double Arrow Output {@AA}" with lore "{@A} Enabled {@AA}" to close then run "inspiteuhcgui 2arrowgui %command sender%"
+				
+			if {{@variable}::Diamond} is not set:
+				if {{@variable}::Gold} is not set:
+					if {{@variable}::NewBlocks} is not set:
+						format slot 52 of command sender with a stone named "{@A} OreLimiter {@AA}" with lore "{@A} Diamond Rates: &cVanilla {@AA} ||{@A} Gold Rates: &cVanilla {@AA} ||{@A} 1.8 Blocks: &cEnabled {@AA}" to close then run "inspiteuhcgui orelimitergui %command sender%"
+			else if {{@variable}::Diamond} is set:
+				if {{@variable}::Gold} is set:
+					if {{@variable}::NewBlocks} is set:
+						format slot 52 of command sender with a stone named "{@A} OreLimiter {@AA}" with lore "{@A} Diamond Rates: &c%{{@variable}::Diamond}%%% {@AA} ||{@A} Gold Rates: &c%{{@variable}::Gold}%%% {@AA} ||{@A} 1.8 Blocks: &c%{{@variable}::NewBlocks}% {@AA}" to close then run "inspiteuhcgui orelimitergui %command sender%"
+	
+		
+		else if command sender does not have permission "inspite.host":
+			open chest with 6 rows named "{@FeatureList}" to command sender
+			wait 3 ticks
+			if {{@variable}::EPD} is not set:
+				format slot 0 of command sender with a ender pearl named "{@A} Enderpearl Damage {@AA}" with lore "{@A} 0 {@HeartSymbol} {@AA}" to be unstealable
+			else:
+				format slot 0 of command sender with a ender pearl named "{@A} Enderpearl Damage {@AA}" with lore "{@A} %{{@variable}::EPD}/10% {@HeartSymbol} {@AA}" to be unstealable
+			
+			if {{@variable}::DL} is not set:
+				format slot 2 of command sender with a 169 named "{@A} Death Lightning {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 2 of command sender with a 169 named "{@A} Death Lightning {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+				
+			if {{@variable}::GD} is not set:
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Normal {@AA}" to be unstealable
+			else if {{@variable}::GD} is "gi":
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Ingot {@AA}" to be unstealable
+			else if {{@variable}::GD} is "gn":
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Nugget {@AA}" to be unstealable 
+			else if {{@variable}::GD} is "gb":
+				format slot 4 of command sender with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Block {@AA}" to be unstealable
+			
+			if {{@variable}::AS} is not set:
+				format slot 6 of command sender with a 416 named "{@A} Death Stands {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 6 of command sender with a 416 named "{@A} Death Stands {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+				
+			if {{@variable}::GHeads} is not set:
+				format slot 8 of command sender with a player head named "{@A} Player Heads {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				if {{@variable}::GheadHeal} is not set:
+					format slot 8 of command sender with 8 player heads named "{@A} Player Heads {@AA}" with lore "{@A} Enabled {@AA} || {@A} Heals: 4 {@HeartSymbol} {@AA}" to be unstealable
+				else:
+					format slot 8 of command sender with (({{@variable}::GHeadHeal}) of player head) named "{@A} Player Heads {@AA}" with lore "{@A} Enabled {@AA} || {@A} Heals: %{{@variable}::GHeadHeal}/2% {@HeartSymbol} {@AA}" to be unstealable
+			
+			if {{@variable}::Horses} is not set:
+				format slot 10 of command sender with a saddle named "{@A} Horses {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 10 of command sender with a saddle named "{@A} Horses {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			
+			if {{@variable}::HorseHeal} is not set:
+				format slot 12 of command sender with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} Not Nerfed {@AA}" to be unstealable
+			else if {{@variable}::HorseHeal} is less than or equal to 0:
+				format slot 12 of command sender with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				set {_Sugar} to "{@A} Sugar: %{@SugarHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Whe} to "{@A} Wheat: %{@WheatHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_App} to "{@A} Apple: %{@AppleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Gapp} to "{@A} Golden Apple: %{@GoldenAppleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Gcar} to "{@A} Golden Carrot: %{@GoldenCarrotHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_HB} to "{@A} Hay Bale: %{@HayBaleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				format slot 12 of command sender with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} %{{@variable}::HorseHeal}%%% As Effective || %{_Sugar}% || %{_Whe}% || %{_App}% || %{_Gcar}% || %{_Gapp}% || %{_HB}%" to be unstealable
+				
+			if {{@variable}::HorseArmor} is not set:
+				format slot 14 of command sender with a diamond horse armor named "{@A} Horse Armor {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 14 of command sender with a diamond horse armor named "{@A} Horse Armor {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+				
+			if {{@variable}::NoGlow} is not set:
+				format slot 16 of command sender with a glowstone dust named "{@A} Glowstone {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 16 of command sender with a glowstone dust named "{@A} Glowstone {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			
+			if {{@variable}::GlistMelon} is not set:
+				format slot 18 of command sender with a glistering melon named "{@A} Hard Melon Recipe {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 18 of command sender with a glistering melon named "{@A} Hard Melon Recipe {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+				
+			if {{@variable}::AntiTrap} is not set:
+				format slot 20 of command sender with a lava bucket named "{@A} Anti Portal Trapping {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 20 of command sender with a lava bucket named "{@A} Anti Portal Trapping {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+				
+			if {{@variable}::BrewingStands} is not set:
+				format slot 26 of command sender with a brewing stand item named "{@A} Brewing Stands {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 26 of command sender with a brewing stand item named "{@A} Brewing Stands {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+				
+			if {{@variable}::StrPots} is not set:
+				format slot 24 of command sender with a blaze powder named "{@A} Strength Potions {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 24 of command sender with a blaze powder named "{@A} Strength Potions {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+
+			format slot 22 of command sender with a enchanted book named " {@A} Server Info {@AA}" with lore "{@A} &c&lInspiteUHC {@AA} ||{@A} &4&lCreated: &fNovember 23rd 2016 {@AA} ||{@A} &4&lStaff: &f_Mrcs, &fTwitterPolls {@AA}||{@A} &4&lInspiteUHC &eIs A RedditUHC Server Owned By &4_Mrcs&e {@AA}||{@A} &eServer Version: &f%minecraft version% {@AA}||{@A} &eServers State: &f{@CurrentState} &f {@AA}||{@A} &eCurrently Running: &fVersion &c{@CurrentVersion}-{@CurrentState} {@AA}" to be unstealable
+
+			if {{@variable}::GodApp} is not set:
+				format slot 28 of command sender with a enchanted golden apple named "{@A} God Apples {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 28 of command sender with a enchanted golden apple named "{@A} God Apples {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			
+			if {{@variable}::Bookshelves} is not set:
+				format slot 30 of command sender with a bookshelf named "{@A} Bookshelves {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 30 of command sender with a bookshelf named "{@A} Bookshelves {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+				
+			if {{@variable}::Absorp} is not set:
+				format slot 32 of command sender with a golden apple item named "{@A} Absorption {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 32 of command sender with a golden apple item named "{@A} Absorption {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+				
+			if {{@variable}::FlintRates} is not set:
+				format slot 34 of command sender with a flint named "{@A} Flint Rates {@AA}" with lore "{@A} Vanilla (10%%) {@AA}" to be unstealable
+			else:
+				format slot 34 of command sender with a flint named "{@A} Flint Rates {@AA}" with lore "{@A} %{{@variable}::FlintRates}%%% {@AA}" to be unstealable
+				
+			if {{@variable}::AppleRates} is not set:
+				format slot 36 of command sender with a apple named "{@A} Apple Rates {@AA}" with lore "{@A} Vanilla (0.55%%) {@AA} ||{@A} No Shears! {@AA}" to be unstealable
+			else:
+				if {{@variable}::OakOnly} is set:
+					set {_oa} to "{@A} Oak and Dark Oak Trees Only Drop Apples {@AA}"
+				else:
+					set {_oa} to "{@A} All Trees Drop Apples {@AA}"
+				if {{@variable}::NoShears} is set:
+					set {_NS} to "{@A} Shears Do Not Work For Apples, But Works For Leaves {@AA}"
+				else:
+					set {_NS} to "{@A} Shears Work For Apples and Leaves {@AA}"
+				format slot 36 of command sender with a apple named "{@A} Apple Rates {@AA}" with lore "{@A} %{{@variable}::AppleRates}%%% {@AA} ||%{_oa}%||%{_NS}%" to be unstealable
+			
+			if {{@variable}::AntiiPvP} is not set:
+				format slot 38 of command sender with a flint and steel named "{@A} Anti iPvP {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 38 of command sender with a flint and steel named "{@A} Anti iPvP {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			
+			if {{@variable}::NP} is not set:
+				format slot 40 of command sender with a nether wart item named "{@A} Nether {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 40 of command sender with a nether wart item named "{@A} Nether {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+				
+			if {{@variable}::QuartzXP} is not set:
+				format slot 42 of command sender with a nether quartz item named "{@A} Quartz XP Nerf {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 42 of command sender with a nether quartz item named "{@A} Quartz XP Nerf {@AA}" with lore "{@A} Enabled (1/2 Of Vanilla XP) {@AA}" to be unstealable
+				
+			if {{@variable}::SplashPots} is not set:
+				format slot 44 of command sender with (a potion of:16395 with no nbt) named "{@A} Splash Potions {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 44 of command sender with (a potion of:16395 with no nbt) named "{@A} Splash Potions {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+				
+			if {{@variable}::Anvils} is not set:
+				format slot 46 of command sender with a anvil named "{@A} Anvils {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 46 of command sender with a anvil named "{@A} Anvils {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			
+			if {{@variable}::FireWeapons} is not set:
+				format slot 48 of command sender with a fire charge item named "{@A} Fire Weapons {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 48 of command sender with a fire charge item named "{@A} Fire Weapons {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			
+			if {{@variable}::2xArrows} is not set:
+				format slot 50 of command sender with 2 arrows named "{@A} Double Arrow Output {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 50 of command sender with 2 arrows named "{@A} Double Arrow Output {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+				
+			if {{@variable}::Diamond} is not set:
+				if {{@variable}::Gold} is not set:
+					if {{@variable}::NewBlocks} is not set:
+						format slot 52 of command sender with a stone named "{@A} OreLimiter {@AA}" with lore "{@A} Diamond Rates: &cVanilla {@AA} ||{@A} Gold Rates: &cVanilla {@AA} ||{@A} 1.8 Blocks: &cEnabled {@AA}" to be unstealable
+			else if {{@variable}::Diamond} is set:
+				if {{@variable}::Gold} is set:
+					if {{@variable}::NewBlocks} is set:
+						format slot 52 of command sender with a stone named "{@A} OreLimiter {@AA}" with lore "{@A} Diamond Rates: &c%{{@variable}::Diamond}%%% {@AA} ||{@A} Gold Rates: &c%{{@variable}::Gold}%%% {@AA} ||{@A} 1.8 Blocks: &c%{{@variable}::NewBlocks}% {@AA}" to be unstealable
+			
+
+				
+command /ping [<player>]:
+	aliases: /ms
+	trigger:
+		if arg-1 is not set:
+			send "{@S} {@A} Your Ping: %command sender's ping%ms {@AA}"
+		else:
+			send "{@S} {@A} %arg-1%'s Ping: %arg-1's ping%ms {@AA}"
+			
+every 20 ticks:
+	loop all players:
+		if {{@variable}::HorseArmor} is set:
+			loop all items in loop-player's inventory:
+				"%loop-item's id%" is "417", "418" or "419":
+					set loop-item to air
+					send "{@S} {@A} Horse Armor Is &cDisabled! {@AA}" to loop-player
+		if {{@variable}::NewBlocks} is set:
+			loop all items in loop-player's inventory:
+				"%loop-item's id%" is "1:1", "1:2", "1:3", "1:4", "1:5" or "1:6":
+					set loop-item to air
+					send "{@S} {@A} You Are Supposed To Recieve Cobblestone From 1.8 Blocks! {@AA}" to loop-player
+					
+command /skull [<offlineplayer>]:
+	permission: inspite.host
+	trigger:
+		if arg-1 is not set:
+			send "{@S} {@A} Need A Player Name {@AA}"
+		else:
+			execute console command "/minecraft:give %command sender% minecraft:skull 1 3 {SkullOwner:%arg-1%}"
+			send "{@S} {@A} You Were Given %arg-1%'s Head!"
+					
+command /smite [<player>]:
+	permission: inspite.host
+	trigger:
+		if arg-1 is not set:
+			strike lightning at the command sender
+		else:
+			strike lightning at the arg-1
+					
+command /inspiteuhcgui [<text>] [<player>]:
+	executable by: console
+	trigger:
+		if arg-1 is "openconfig":
+			close arg-2's inventory
+			wait 5 ticks
+			arg-2 command "/uhc"
+		
+		else if arg-1 is "epearlgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			if {{@variable}::EPD} is not set:
+				format slot 0 of arg-2 with a ender pearl named "{@A} Enderpearl Damage {@AA}" with lore "{@A} 0 {@HeartSymbol} {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a ender pearl named "{@A} Enderpearl Damage {@AA}" with lore "{@A} %{{@variable}::EPD}/10% {@HeartSymbol} {@AA}" to be unstealable
+			format slot 1 of arg-2 with a green wool named "{@A} -0.1 {@HeartSymbol} Damage {@AA}" with lore "{@A} For Enderpearls {@AA}" to close then run "inspiteuhcgui epearlminus %arg-2%"
+			format slot 2 of arg-2 with a red wool named "{@A} +0.1 {@HeartSymbol} Damage {@AA}" with lore "{@A} For Enderpearls {@AA}" to close then run "inspiteuhcgui epearladd %arg-2%"
+			format slot 3 of arg-2 with a redstone block named "{@A} Reset Damage {@AA}" with lore "{@A} For Enderpearls {@AA}" to close then run "inspiteuhcgui epearlreset %arg-2%"
+			formatBack(arg-2)
+			
+		else if arg-1 is "epearladd":
+			if {{@variable}::EPD} is not set:
+				set {{@variable}::EPD} to 1
+				send arg-2 title "{@A} Added 0.1 {@HeartSymbol} To Damage {@AA}" with subtitle "{@A} Now %{{@variable}::EPD}/10% {@HeartSymbol} {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui epearlgui %arg-2%"
+				
+			else if {{@variable}::EPD} is greater than or equal to 100:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't Go Over {@AA}" with subtitle "{@A} 10 {@HeartSymbol}! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui epearlgui %arg-2%"
+				
+			else:
+				add 1 to {{@variable}::EPD}
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 0.1 {@HeartSymbol} To Damage {@AA}" with subtitle "{@A} Now %{{@variable}::EPD}/10% {@HeartSymbol} {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui epearlgui %arg-2%"
+				
+		else if arg-1 is "epearlminus":
+			if {{@variable}::EPD} is not set:
+				set {{@variable}::EPD} to 0
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't Go Under" with subtitle "{@A} 0 {@HeartSymbol}! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui epearlgui %arg-2%"
+				
+			else if {{@variable}::EPD} is less than or equal to 0:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't Go Under" with subtitle "{@A} 0 {@HeartSymbol}! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui epearlgui %arg-2%"
+				
+			else:
+				remove 1 from {{@variable}::EPD}
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 0.1 {@HeartSymbol} From Damage {@AA}" with subtitle "{@A} Now %{{@variable}::EPD}/10% {@HeartSymbol} {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui epearlgui %arg-2%"
+				
+		else if arg-1 is "epearlreset":
+			delete {{@variable}::EPD}
+			close arg-2's inventory
+			send arg-2 title "{@A} Reset Ender Pearl Damage {@AA}" with subtitle "{@A} Now 0 {@HeartSymbol} {@AA}" for 1 second
+			wait 1 second
+			command "/inspiteuhcgui epearlgui %arg-2%"
+			
+		
+		else if arg-1 is "deathl":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			if {{@variable}::DL} is not set:
+				format slot 0 of arg-2 with 169 named "{@A} Death Lightning {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with 169 named "{@A} Death Lightning {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Death Lightning {@AA}" to run "inspiteuhcgui dl %arg-2%"
+			formatBack(arg-2)
+			
+		else if arg-1 is "dl":
+			if {{@variable}::DL} is not set:
+				set {{@variable}::DL} to true
+				close arg-2's inventory
+				send arg-2 title "           {@A} Enabled Death Lightning {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui deathl %arg-2%"
+			else:
+				delete {{@variable}::DL}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Death Lightning {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui deathl %arg-2%"
+				
+		else if arg-1 is "asgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			if {{@variable}::AS} is not set:
+				format slot 0 of arg-2 with 416 named "{@A} Death Stands {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with 416 named "{@A} Death Stands {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Death Stands {@AA}" to run "inspiteuhcgui tds %arg-2%"
+			formatBack(arg-2)
+			
+		else if arg-1 is "tds":
+			if {{@variable}::AS} is not set:
+				set {{@variable}::AS} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Death Stands {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui asgui %arg-2%"
+			else:
+				delete {{@variable}::AS}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Death Stands {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui asgui %arg-2%"
+				
+		else if arg-1 is "horsehealgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			if {{@variable}::HorseHeal} is not set:
+				format slot 0 of arg-2 with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} Not Nerfed {@AA}" to be unstealable
+			else if {{@variable}::HorseHeal} is less than or equal to 0:
+				format slot 0 of arg-2 with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				set {_Sugar} to "{@A} Sugar: %{@SugarHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Whe} to "{@A} Wheat: %{@WheatHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_App} to "{@A} Apple: %{@AppleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Gapp} to "{@A} Golden Apple: %{@GoldenAppleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_Gcar} to "{@A} Golden Carrot: %{@GoldenCarrotHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				set {_HB} to "{@A} Hay Bale: %{@HayBaleHealHorse}*({{@variable}::HorseHeal}/1000)% {@HeartSymbol} {@AA}"
+				format slot 14 of command sender with a bread named "{@A} Horse Healing {@AA}" with lore "{@A} %{{@variable}::HorseHeal}%%% As Effective {@AA}|| %{_Sugar}% || %{_Whe}% || %{_App}% || %{_Gcar}% || %{_Gapp}% || %{_HB}%" to be unstealable
+			format slot 1 of arg-2 with a green wool named "{@A} -25%% {@HeartSymbol} Effectiveness {@AA}" with lore "{@A} For Horse Healing {@AA}" to run "inspiteuhcgui hhm %arg-2%"
+			format slot 2 of arg-2 with a red wool named "{@A} +25%% {@HeartSymbol} Damage {@AA}" with lore "{@A} For Horse Healing {@AA}" to run "inspiteuhcgui hha %arg-2%"
+			format slot 3 of arg-2 with a redstone block named "{@A} Reset Effectiveness {@AA}" with lore "{@A} For Horse Healing {@AA}" to run "inspiteuhcgui hhr %arg-2%"
+			formatBack(arg-2)
+			
+		else if arg-1 is "hha":
+			if {{@variable}::HorseHeal} is not set:
+				set {{@variable}::HorseHeal} to 125
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 25%% Effectiveness {@AA}" with subtitle "{@A} Now %{{@variable}::HorseHeal}%%% As Effective {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui horsehealgui %arg-2%"
+				
+			else if {{@variable}::HorseHeal} is greater than or equal to 250:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't Go Over {@AA}" with subtitle "{@A} 250%% Effectiveness! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui horsehealgui %arg-2%"
+				
+			else:
+				add 25 to {{@variable}::HorseHeal}
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 25%% Effectiveness {@AA}" with subtitle "{@A} Now %{{@variable}::HorseHeal}%%% As Effective {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui horsehealgui %arg-2%"
+				
+		else if arg-1 is "hhm":
+			if {{@variable}::HorseHeal} is not set:
+				set {{@variable}::HorseHeal} to 75
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 25%% Effectiveness {@AA}" with subtitle "{@A} Now %{{@variable}::HorseHeal}%%% As Effective {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui horsehealgui %arg-2%"
+				
+			else if {{@variable}::HorseHeal} is less than or equal to 0:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't Go Under {@AA}" with subtitle "{@A} 0%% Effectiveness! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui horsehealgui %arg-2%"
+				
+			else:
+				remove 25 from {{@variable}::HorseHeal}
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 25%% Effectiveness {@AA}" with subtitle "{@A} Now %{{@variable}::HorseHeal}%%% As Effective {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui horsehealgui %arg-2%"
+				
+		else if arg-1 is "hhr":
+			delete {{@variable}::HorseHeal}
+			close arg-2's inventory
+			send arg-2 title "{@A} Reset Horse Healing {@AA}" with subtitle "{@A} Now Vanilla {@AA}" for 1 second
+			wait 1 second
+			command "/inspiteuhcgui horsehealgui %arg-2%"
+			
+		else if arg-1 is "horseridegui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Horse Riding {@AA}" to run "inspiteuhcgui thr %arg-2%"
+			if {{@variable}::Horses} is not set:
+				format slot 0 of arg-2 with a saddle named "{@A} Horses {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a saddle named "{@A} Horses {@AA}" with lore "{@A} Enabled {@A}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "thr":
+			if {{@variable}::Horses} is not set:
+				set {{@variable}::Horses} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Horse Riding {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui horseridegui %arg-2%"
+			else:
+				delete {{@variable}::Horses}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Horse Riding {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui horseridegui %arg-2%"
+				
+		else if arg-1 is "gdi":
+			close arg-2's inventory
+			send arg-2 title "{@A} Successfully Changed Ghast Drop {@AA}" with subtitle "{@A} To A Gold Ingot {@AA}" for 1 second
+			wait 1 second
+			command "/inspiteuhcgui ghastgui %arg-2%"
+			set {{@variable}::GD} to "gi"
+			
+		else if arg-1 is "gdn":
+			send arg-2 title "{@A} Successfully Changed Ghast Drop {@AA}" with subtitle "{@A} To A Gold Nugget {@AA}" for 1 second
+			close arg-2's inventory
+			wait 1 second
+			set {{@variable}::GD} to "gn"
+			command "/inspiteuhcgui ghastgui %arg-2%"
+			
+		else if arg-1 is "gdb":
+			close arg-2's inventory
+			send arg-2 title "{@A} Successfully Changed Ghast Drop {@AA}" with subtitle "{@A} To A Gold Block {@AA}" for 1 second
+			wait 1 second
+			set {{@variable}::GD} to "gb"
+			command "/inspiteuhcgui ghastgui %arg-2%"
+			
+		else if arg-1 is "gr":
+			close arg-2's inventory
+			send arg-2 title "{@A} Successfully Changed Ghast Drop {@AA}" with subtitle "{@A} To A Vanilla {@AA}" for 1 second
+			wait 1 second
+			delete {{@variable}::GD}
+			command "/inspiteuhcgui ghastgui %arg-2%"
+			
+		else if arg-1 is "ghastgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			if {{@variable}::GD} is not set:
+				format slot 0 of arg-2 with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Normal {@AA}" to be unstealable
+			else if {{@variable}::GD} is "gi": 
+				format slot 0 of arg-2 with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Ingot {@AA}" to be unstealable
+			else if {{@variable}::GD} is "gn":
+				format slot 0 of arg-2 with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Nugget {@AA}" to be unstealable
+			else if {{@variable}::GD} is "gb":
+				format slot 0 of arg-2 with a ghast tear named "{@A} Ghast Drops {@AA}" with lore "{@A} Gold Block {@AA}" to be unstealable
+			format slot 1 of arg-2 with a redstone block named "{@A} Reset Drops {@AA}" to run "inspiteuhcgui gr %arg-2%"
+			format slot 2 of arg-2 with a gold nugget named "{@A} Drop Gold Nugget {@AA}" to run "inspiteuhcgui gdn %arg-2%"
+			format slot 3 of arg-2 with a gold ingot named "{@A} Drop Gold Ingot {@AA}" to run "inspiteuhcgui gdi %arg-2%"
+			format slot 4 of arg-2 with a gold block named "{@A} Drop Gold Block {@AA}" to run "inspiteuhcgui gdb %arg-2%"
+			formatBack(arg-2)
+			
+		else if arg-1 is "headsgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			if {{@variable}::GHeads} is not set:
+				format slot 0 of arg-2 with a player head named "{@A} Player Heads {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				if {{@variable}::GHeadHeal} is not set:
+					format slot 0 of arg-2 with 8 player heads named "{@A} Player Heads {@AA}" with lore "{@A} Enabled {@AA}|| {@A} Heals: 4 {@HeartSymbol} {@AA}" to be unstealable
+				else:
+					format slot 0 of arg-2 with (({{@variable}::GHeadHeal}) of player head) named "{@A} Player Heads {@AA}" with lore "{@A} Enabled {@AA}|| {@A} Heals: %{{@variable}::GHeadHeal}/2% {@HeartSymbol} {@AA}" to be unstealable
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Player Heads {@AA}" to run "inspiteuhcgui toghead %arg-2%"
+			format slot 2 of arg-2 with a green wool named "{@A} +0.5 {@HeartSymbol} {@AA}" with lore "{@A} To Healing Amount {@AA}" to run "inspiteuhcgui addhead %arg-2%"
+			format slot 3 of arg-2 with a red wool named "{@A} -0.5 {@HeartSymbol} {@AA}" with lore "{@A} To Healing Amount {@AA}" to run "inspiteuhcgui remhead %arg-2%"
+			formatBack(arg-2)
+		
+		else if arg-1 is "toghead":
+			if {{@variable}::GHeads} is not set:
+				set {{@variable}::GHeads} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Golden Heads {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui headsgui %arg-2%"
+			else:
+				delete {{@variable}::GHeads}
+				delete {{@variable}::GHeadHeal}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Golden Heads {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui headsgui %arg-2%"
+			
+		else if arg-1 is "addhead":
+			if {{@variable}::GHeadHeal} is not set:
+				set {{@variable}::GHeadHeal} to 9
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 0.5 {@HeartSymbol} {@AA}" with subtitle "{@A} Now Heals %{{@variable}::GHeadHeal}/2% {@HeartSymbol} {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui headsgui %arg-2%"
+				
+			else:
+				add 1 to {{@variable}::GHeadHeal}
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 0.5 {@HeartSymbol} {@AA}" with subtitle "{@A} Now Heals %{{@variable}::GHeadHeal}/2% {@HeartSymbol} {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui headsgui %arg-2%"
+				
+		else if arg-1 is "remhead":
+			if {{@variable}::GHeadHeal} is not set:
+				set {{@variable}::GHeadHeal} to 7
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 0.5 {@HeartSymbol} {@AA}" with subtitle "{@A} Now Heals %{{@variable}::GHeadHeal}/2% {@HeartSymbol} {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui headsgui %arg-2%"
+				
+			else:
+				remove 1 from {{@variable}::GHeadHeal}
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 0.5 {@HeartSymbol} {@AA}" with subtitle "{@A} Now Heals %{{@variable}::GHeadHeal}/2% {@HeartSymbol} {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui headsgui %arg-2%"
+		
+		else if arg-1 is "horsearmorgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Horse Armor {@AA}" to run "inspiteuhcgui tha %arg-2%"
+			if {{@variable}::HorseArmor} is not set:
+				format slot 0 of arg-2 with a diamond horse armor named "{@A} Horse Armor {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a diamond horse armor named "{@A} Horse Armor {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+		
+		else if arg-1 is "tha":
+			if {{@variable}::HorseArmor} is not set:
+				set {{@variable}::HorseArmor} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Horse Armor {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui horsearmorgui %arg-2%"
+			else:
+				delete {{@variable}::HorseArmor}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Horse Armor {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui horsearmorgui %arg-2%"
+				
+		else if arg-1 is "glowgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Glowstone {@AA}" to run "inspiteuhcgui tg %arg-2%"
+			if {{@variable}::NoGlow} is not set:
+				format slot 0 of arg-2 with a glowstone dust named "{@A} Glowstone {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a glowstone dust named "{@A} Glowstone {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+		
+		else if arg-1 is "tg":
+			if {{@variable}::NoGlow} is not set:
+				set {{@variable}::NoGlow} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Glowstone {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui glowgui %arg-2%" 
+			else:
+				delete {{@variable}::NoGlow}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Glowstone {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui glowgui %arg-2%"
+				
+		else if arg-1 is "splashgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Splash Potions {@AA}" to run "inspiteuhcgui tsp %arg-2%"
+			if {{@variable}::SplashPots} is not set:
+				format slot 0 of arg-2 with (a potion of:16395 with no nbt) named "{@A} Splash Potions {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with (a potion of:16395 with no nbt) named "{@A} Splash Potions {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tsp":
+			if {{@variable}::SplashPots} is not set:
+				set {{@variable}::SplashPots} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Splash Potions {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui splashgui %arg-2%"
+			else:
+				delete {{@variable}::SplashPots}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Splash Potions {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui splashgui %arg-2%"
+				
+		else if arg-1 is "trapgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Anti Portal Trapping {@AA}" to run "inspiteuhcgui tpt %arg-2%"
+			if {{@variable}::AntiTrap} is not set:
+				format slot 0 of arg-2 with a lava bucket named "{@A} Anti Portal Trapping {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a lava bucket named "{@A} Anti Portal Trapping {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tpt":
+			if {{@variable}::AntiTrap} is not set:
+				set {{@variable}::AntiTrap} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Anti Portal Trapping {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui trapgui %arg-2%"
+			else:
+				delete {{@variable}::AntiTrap}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Anti Portal Trapping {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui trapgui %arg-2%"
+
+		else if arg-1 is "brewgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Brewing Stands {@AA}" to run "inspiteuhcgui tbs %arg-2%"
+			if {{@variable}::BrewingStands} is not set:
+				format slot 0 of arg-2 with a brewing stand item named "{@A} Brewing Stands {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a brewing stand item named "{@A} Brewing Stands {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tbs":
+			if {{@variable}::BrewingStands} is not set:
+				set {{@variable}::BrewingStands} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Brewing Stands {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui brewgui %arg-2%"
+			else:
+				delete {{@variable}::BrewingStands}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Brewing Stands {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui brewgui %arg-2%"
+				
+		else if arg-1 is "strgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Blaze Powder (Str Pots) {@AA}" to run "inspiteuhcgui tbp %arg-2%"
+			if {{@variable}::StrPots} is not set:
+				format slot 0 of arg-2 with a blaze powder named "{@A} Blaze Powder (Str Pots) {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a blaze powder named "{@A} Blaze Powder (Str Pots) {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tbp":
+			if {{@variable}::StrPots} is not set:
+				set {{@variable}::StrPots} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Blaze Powder (Str Pots) {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui strgui %arg-2%"
+			else:
+				delete {{@variable}::StrPots}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Blaze Powder (Str Pots) {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui strgui %arg-2%"
+
+		else if arg-1 is "godgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle God Apples {@AA}" to run "inspiteuhcgui tga %arg-2%"
+			if {{@variable}::GodApp} is not set:
+				format slot 0 of arg-2 with a enchanted golden apple named "{@A} God Apples {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a enchanted golden apple named "{@A} God Apples {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tga":
+			if {{@variable}::GodApp} is not set:
+				set {{@variable}::GodApp} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled God Apples {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui godgui %arg-2%"
+			else:
+				delete {{@variable}::GodApp}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled God Apples {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui godgui %arg-2%"
+
+		else if arg-1 is "bookgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Bookshelves {@AA}" to run "inspiteuhcgui tb %arg-2%"
+			if {{@variable}::Bookshelves} is not set:
+				format slot 0 of arg-2 with a bookshelf named "{@A} Bookshelves {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a bookshelf named "{@A} Bookshelves {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tb":
+			if {{@variable}::Bookshelves} is not set:
+				set {{@variable}::Bookshelves} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Bookshelves {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui bookgui %arg-2%"
+			else:
+				delete {{@variable}::Bookshelves}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Bookshelves {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui bookgui %arg-2%"
+				
+		else if arg-1 is "melongui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Hard Melon Recipe {@AA}" to run "inspiteuhcgui tm %arg-2%"
+			if {{@variable}::GlistMelon} is not set:
+				format slot 0 of arg-2 with a glistering melon named "{@A} Hard Melon Recipe {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a glistering melon named "{@A} Hard Melon Recipe {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tm":
+			if {{@variable}::GlistMelon} is not set:
+				set {{@variable}::GlistMelon} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Hard Melon Recipe {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui melongui %arg-2%"
+			else:
+				delete {{@variable}::GlistMelon}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Hard Melon Recipe {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui melongui %arg-2%"
+				
+		else if arg-1 is "absorpgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Absorption {@AA}" to run "inspiteuhcgui tab %arg-2%"
+			if {{@variable}::Absorp} is not set:
+				format slot 0 of arg-2 with a golden apple item named "{@A} Absorption {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a golden apple item named "{@A} Absorption {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tab":
+			if {{@variable}::Absorp} is not set:
+				set {{@variable}::Absorp} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Absorption {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui absorpgui %arg-2%"
+			else:
+				delete {{@variable}::Absorp}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Absorption {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui absorpgui %arg-2%"
+				
+		else if arg-1 is "ipvpgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Anti iPvP {@AA}" to run "inspiteuhcgui tan %arg-2%"
+			if {{@variable}::AntiiPvP} is not set:
+				format slot 0 of arg-2 with a flint and steel named "{@A} Anti iPvP {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a flint and steel named "{@A} Anti iPvP {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tan":
+			if {{@variable}::AntiiPvP} is not set:
+				set {{@variable}::AntiiPvP} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Anti iPvP {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui ipvpgui %arg-2%"
+			else:
+				delete {{@variable}::AntiiPvP}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Anti iPvP {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui ipvpgui %arg-2%"
+				
+		else if arg-1 is "nethergui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Nether {@AA}" to run "inspiteuhcgui tn %arg-2%"
+			if {{@variable}::NP} is not set:
+				format slot 0 of arg-2 with a nether wart item named "{@A} Nether {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a nether wart item named "{@A} Nether {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tn":
+			if {{@variable}::NP} is not set:
+				set {{@variable}::NP} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Nether {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui nethergui %arg-2%"
+			else:
+				delete {{@variable}::NP}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Nether {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui nethergui %arg-2%"
+				
+		else if arg-1 is "xpgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Quartz XP Nerf {@AA}" to run "inspiteuhcgui txpn %arg-2%"
+			if {{@variable}::QuartzXP} is not set:
+				format slot 0 of arg-2 with a nether quartz item named "{@A} Quartz XP Nerf {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a nether quartz item named "{@A} Quartz XP Nerf {@AA}" with lore "{@A} Enabled (1/2 of Vanilla XP) {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "txpn":
+			if {{@variable}::QuartzXP} is not set:
+				set {{@variable}::QuartzXP} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Quartz XP Nerf {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui xpgui %arg-2%"
+			else:
+				delete {{@variable}::QuartzXP}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Quartz XP Nerf {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui xpgui %arg-2%"
+				
+		else if arg-1 is "anvilgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Anvils {@AA}" to run "inspiteuhcgui tanvgui %arg-2%"
+			if {{@variable}::Anvils} is not set:
+				format slot 0 of arg-2 with a anvil named "{@A} Anvils {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a anvil named "{@A} Anvils {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tanvgui":
+			if {{@variable}::Anvils} is not set:
+				set {{@variable}::Anvils} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Anvils {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui anvilgui %arg-2%"
+			else:
+				delete {{@variable}::Anvils}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Anvils {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui anvilgui %arg-2%"
+
+		else if arg-1 is "fireweaponsgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Fire Weapons {@AA}" to run "inspiteuhcgui tfw %arg-2%"
+			if {{@variable}::FireWeapons} is not set:
+				format slot 0 of arg-2 with a fire charge item named "{@A} Fire Weapons {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a fire charge item named "{@A} Fire Weapons {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "tfw":
+			if {{@variable}::FireWeapons} is not set:
+				set {{@variable}::FireWeapons} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Fire Weapons {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui fireweaponsgui %arg-2%"
+			else:
+				delete {{@variable}::FireWeapons}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Fire Weapons {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui fireweaponsgui %arg-2%"
+
+		else if arg-1 is "2arrowgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 1 of arg-2 with a redstone block named "{@A} Toggle Double Arrow Output {@AA}" to run "inspiteuhcgui t2a %arg-2%"
+			if {{@variable}::2xArrows} is not set:
+				format slot 0 of arg-2 with 2 arrows named "{@A} Double Arrow Output {@AA}" with lore "{@A} Disabled {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with 2 arrows named "{@A} Double Arrow Output {@AA}" with lore "{@A} Enabled {@AA}" to be unstealable
+			formatBack(arg-2)
+			
+		else if arg-1 is "t2a":
+			if {{@variable}::2xArrows} is not set:
+				set {{@variable}::2xArrows} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Double Arrow Output {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui 2arrowgui %arg-2%"
+			else:
+				delete {{@variable}::2xArrows}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Double Arrow Output {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui 2arrowgui %arg-2%"
+				
+		else if arg-1 is "flintgui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			formatBack(arg-2)
+			if {{@variable}::FlintRates} is not set:
+				format slot 0 of arg-2 with a flint named "{@A} Flint Rates {@AA}" with lore "{@A} Vanilla {@AA}" to be unstealable
+			else:
+				format slot 0 of arg-2 with a flint named "{@A} Flint Rates {@AA}" with lore "{@A} %{{@variable}::FlintRates}%%% {@AA}" to be unstealable
+			format slot 1 of arg-2 with a redstone block named "{@A} Reset Flint Rates {@AA}" to run "inspiteuhcgui rfr %arg-2%"
+			format slot 2 of arg-2 with a green wool named "{@A} +0.5%% Rates {@AA}" to run "inspiteuhcgui add05flint %arg-2%"
+			format slot 3 of arg-2 with a green wool named "{@A} +1%% Rates {@AA}" to run "inspiteuhcgui add1flint %arg-2%"
+			format slot 4 of arg-2 with a green wool named "{@A} +10%% Rates {@AA}" to run "inspiteuhcgui add10flint %arg-2%"
+			format slot 5 of arg-2 with a red wool named "{@A} -0.5%% Rates {@AA}" to run "inspiteuhcgui rem05flint %arg-2%"
+			format slot 6 of arg-2 with a red wool named "{@A} -1%% Rates {@AA}" to run "inspiteuhcgui rem1flint %arg-2%"
+			format slot 7 of arg-2 with a red wool named "{@A} -10%% Rates{@AA}" to run "inspiteuhcgui rem10flint %arg-2%"
+
+		else if arg-1 is "add10flint":
+			if {{@variable}::FlintRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::FlintRates} to 20
+				send arg-2 title "{@A} Added 10%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else if {{@variable}::FlintRates} is greater than or equal to 100:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go over {@AA}" with subtitle "{@A} 100%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else:
+				add 10 to {{@variable}::FlintRates}
+				if {{@variable}::FlintRates} is more than 100:
+					set {{@variable}::FlintRates} to 100
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 10%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+		else if arg-1 is "rem10flint":
+			if {{@variable}::FlintRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::FlintRates} to 0
+				send arg-2 title "{@A} Removed 10%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else if ({{@variable}::FlintRates}) is less than or equal to 0:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go under {@AA}" with subtitle "{@A} 0%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else:
+				remove 10 from {{@variable}::FlintRates}
+				if {{@variable}::FlintRates} is less than 0:
+					set {{@variable}::FlintRates} to 0
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 10%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+			
+		else if arg-1 is "add05flint":
+			if {{@variable}::FlintRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::FlintRates} to 10.5
+				send arg-2 title "{@A} Added 0.5%% to flint rates {@A}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else if {{@variable}::FlintRates} is greater than or equal to 100:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go over {@AA}" with subtitle "{@A} 100%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else:
+				add 0.5 to {{@variable}::FlintRates}
+				if {{@variable}::FlintRates} is more than 100:
+					set {{@variable}::FlintRates} to 100
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 0.5%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+		else if arg-1 is "add1flint":
+			if {{@variable}::FlintRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::FlintRates} to 11
+				send arg-2 title "{@A} Added 1%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else if {{@variable}::FlintRates} is greater than or equal to 100:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go over {@AA}" with subtitle "{@A} 100%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else:
+				add 1 to {{@variable}::FlintRates}
+				if {{@variable}::FlintRates} is more than 100:
+					set {{@variable}::FlintRates} to 100
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 1%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+		else if arg-1 is "rem1flint":
+			if {{@variable}::FlintRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::FlintRates} to 9
+				send arg-2 title "{@A} Removed 1%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@A}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else if {{@variable}::FlintRates} is less than or equal to 0:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go under {@AA}" with subtitle "{@A} 0%%! {@A}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else:
+				remove 1 from {{@variable}::FlintRates}
+				if {{@variable}::FlintRates} is less than 0:
+					set {{@variable}::FlintRates} to 0
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 1%% to flint rates {@A}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+		else if arg-1 is "rem05flint":
+			if {{@variable}::FlintRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::FlintRates} to 9.5
+				send arg-2 title "{@A} Removed 0.5%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else if {{@variable}::FlintRates} is less than or equal to 0:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go under {@AA}" with subtitle "{@A} 0%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+			else:
+				remove 0.5 from {{@variable}::FlintRates}
+				if {{@variable}::FlintRates} is less than 0:
+					set {{@variable}::FlintRates} to 0
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 0.5%% to flint rates {@AA}" with subtitle "{@A} Now %{{@variable}::FlintRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui flintgui %arg-2%"
+				
+		else if arg-1 is "rfr":
+			delete {{@variable}::FlintRates}
+			close arg-2's inventory
+			send arg-2 title "{@A} Reset flint rates {@AA}" with subtitle "{@A} Now Vanilla (10%%) {@AA}" for 1 second
+			wait 1 second
+			command "/inspiteuhcgui flintgui %arg-2%"
+
+		else if arg-1 is "applegui":
+			wait 4 ticks
+			open chest with 1 row named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			formatBack(arg-2)
+			if {{@variable}::AppleRates} is not set:
+				format slot 0 of arg-2 with a apple named "{@A} Apple Rates {@AA}" with lore "{@A} Vanilla (0.55%%) (no shears!) {@AA}" to be unstealable
+			else:
+				if {{@variable}::OakOnly} is set:
+					set {_oa} to "{@A} Oak and Dark Oak trees only drop apples {@AA}"
+				else:
+					set {_oa} to "{@A} All trees drop apples {@AA}"
+				if {{@variable}::NoShears} is set:
+					set {_NS} to "{@A} Shears don't work {@AA}"
+				else:
+					set {_NS} to "{@A} Shears will work {@AA}"
+				format slot 0 of arg-2 with a apple named "Apple Rates" with lore "{@A} %{{@variable}::AppleRates}%%% {@AA}||{@A} %{_NS}% {@AA}||{@A} %{_oa}% {@AA}" to be unstealable
+			format slot 1 of arg-2 with a redstone block named "{@A} Reset Apple Rates {@AA}" to run "inspiteuhcgui rar %arg-2%"
+			format slot 2 of arg-2 with a green wool named "{@A} +0.5%% Rates {@AA}" to run "inspiteuhcgui add05apple %arg-2%"
+			format slot 3 of arg-2 with a green wool named "{@A} +5%% Rates {@AA}" to run "inspiteuhcgui add5apple %arg-2%"
+			format slot 4 of arg-2 with a red wool named "{@A} -0.5%% Rates {@AA}" to run "inspiteuhcgui rem05apple %arg-2%"
+			format slot 5 of arg-2 with a red wool named "{@A} -5%% Rates {@AA}" to run "inspiteuhcgui rem5apple %arg-2%"
+			format slot 6 of arg-2 with shears named "{@A} Toggle Shears {@AA}" to run "inspiteuhcgui togshears %arg-2%"
+			format slot 7 of arg-2 with oak wood block named "{@A} Toggle Oak Only {@AA}" to run "inspiteuhcgui togoakonly %arg-2%"
+			
+		else if arg-1 is "rar":
+			delete {{@variable}::AppleRates}
+			delete {{@variable}::NoShears}
+			delete {{@variable}::OakOnly}
+			close arg-2's inventory
+			send arg-2 title "{@A} Reset apple rates {@AA}" with subtitle "{@A} Now Vanilla (0.55%%) {@AA}" for 1 second
+			wait 1 second
+			command "/inspiteuhcgui applegui %arg-2%"
+			
+		else if arg-1 is "togshears":
+			if {{@variable}::NoShears} is not set:
+				set {{@variable}::NoShears} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Shears {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+			else:
+				delete {{@variable}::NoShears}
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Shears {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+		else if arg-1 is "togoakonly":
+			if {{@variable}::OakOnly} is not set:
+				set {{@variable}::OakOnly} to true
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled Oak Only Apples {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+			else:
+				delete {{@variable}::OakOnly}
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled Oak Only Apples {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+			
+		else if arg-1 is "rem5apple":
+			if {{@variable}::AppleRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::AppleRates} to 0
+				send arg-2 title "{@A} Removed 5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else if {{@variable}::AppleRates} is less than or equal to 0:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go under {@AA}" with subtitle "{@A} 0%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else:
+				remove 5 from {{@variable}::AppleRates}
+				if {{@variable}::AppleRates} is less than 0:
+					set {{@variable}::AppleRates} to 0
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+		else if arg-1 is "add5apple":
+			if {{@variable}::AppleRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::AppleRates} to 5.05
+				send arg-2 title "{@A} Added 5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else if {{@variable}::AppleRates} is greater than or equal to 100:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go over {@AA}" with subtitle "{@A} 100%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else:
+				add 5 to {{@variable}::AppleRates}
+				if {{@variable}::AppleRates} is more than 100:
+					set {{@variable}::AppleRates} to 100
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"	
+		
+		else if arg-1 is "rem05apple":
+			if {{@variable}::AppleRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::AppleRates} to 0.05
+				send arg-2 title "{@A} Removed 0.5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else if {{@variable}::AppleRates} is less than or equal to 0:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go under {@AA}" with subtitle "{@A} 0%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else:
+				remove 0.5 from {{@variable}::AppleRates}
+				if {{@variable}::AppleRates} is less than 0:
+					set {{@variable}::AppleRates} to 0
+				close arg-2's inventory
+				send arg-2 title "{@A} Removed 0.5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+		else if arg-1 is "add05apple":
+			if {{@variable}::AppleRates} is not set:
+				close arg-2's inventory
+				set {{@variable}::AppleRates} to 1.05
+				send arg-2 title "{@A}Added 0.5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else if {{@variable}::AppleRates} is greater than or equal to 100:
+				close arg-2's inventory
+				send arg-2 title "{@A} Can't go over {@AA}" with subtitle "{@A} 100%%! {@AA}" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+				
+			else:
+				add 0.5 to {{@variable}::AppleRates}
+				if {{@variable}::AppleRates} is more than 100:
+					set {{@variable}::AppleRates} to 100
+				close arg-2's inventory
+				send arg-2 title "{@A} Added 0.5%% to apple rates {@AA}" with subtitle "{@A} Now %{{@variable}::AppleRates}%%% {@AA}"
+				wait 1 second
+				command "/inspiteuhcgui applegui %arg-2%"
+		
+		else if arg-1 is "orelimitergui":
+			wait 4 ticks
+			open chest with 4 rows named "{@FeatureConfig}" to arg-2
+			wait 1 tick
+			format slot 0 of arg-2 with a stone named "{@A} OreLimiter {@AA}" with lore "{@A} Diamond Rates: &c%{{@variable}::Diamond}%%% {@AA} ||{@A} Gold Rates: &c%{{@variable}::Gold}%%% {@AA} ||{@A} 1.8 Blocks: &c%{{@variable}::NewBlocks}% {@AA}" to be unstealable
+			format slot 9 of arg-2 with a diamond named "{@A} Diamond Rates {@AA}" with lore "{@A} &c%{{@variable}::Diamond}%%% {@AA}" to be unstealable
+			format slot 18 of arg-2 with a gold ingot named "{@A} Gold Rates {@AA}" with lore "{@A} &c%{{@variable}::Gold}%%% {@AA}" to be unstealable
+			format slot 27 of arg-2 with a stone:3 named "{@A} 1.8 Blocks {@AA}" with lore "{@A} &c%{{@variable}::NewBlocks}% {@AA}" to be unstealable
+			format slot 28 of arg-2 with a redstone block named "{@A} Toggle 1.8 Blocks {@AA}" to run "inspiteuhcgui tnblocks %arg-2%"
+			formatBack(arg-2)
+			
+		else if arg-1 is "tnblocks":
+			if {{@variable}::NewBlocks} is not set:
+				set {{@variable}::NewBlocks} to "Disabled"
+				close arg-2's inventory
+				send arg-2 title "{@A} Disabled 1.8 Blocks {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui orelimitergui %arg-2%"
+			else:
+				set {{@variable}::NewBlocks} to "Enabled"
+				close arg-2's inventory
+				send arg-2 title "{@A} Enabled 1.8 Blocks {@AA}" with subtitle "" for 1 second
+				wait 1 second
+				command "/inspiteuhcgui orelimitergui %arg-2%"
